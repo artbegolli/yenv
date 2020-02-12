@@ -1,4 +1,4 @@
-package yenv // import "github.com/artbegolli/yenv"
+package yenv // yenv.
 
 import (
 	"os"
@@ -28,8 +28,6 @@ func UnmarshallWithEnv(y []byte, o interface{}) error {
 	}
 	return nil
 }
-
-
 
 func findAndReplace(m map[string]interface{}) error {
 
