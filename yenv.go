@@ -10,15 +10,7 @@ import (
 
 func UnmarshallWithEnv(y []byte, o interface{}) error {
 
-	yamlMap := map[string]interface{}{}
-	if err := yaml.Unmarshal(y, &yamlMap); err != nil {
-		return err
-	}
-	if err := findAndReplace(yamlMap); err != nil {
-		return err
-	}
-
-	yamlReplaced, err := yaml.Marshal(yamlMap)
+	yamlReplaced, err := ApplyEnvValues(y)
 	if err != nil {
 		return err
 	}
@@ -27,6 +19,22 @@ func UnmarshallWithEnv(y []byte, o interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func ApplyEnvValues(y []byte) ([]byte, error) {
+	yamlMap := map[string]interface{}{}
+	if err := yaml.Unmarshal(y, &yamlMap); err != nil {
+		return nil, err
+	}
+	if err := findAndReplace(yamlMap); err != nil {
+		return nil, err
+	}
+
+	yamlReplaced, err := yaml.Marshal(yamlMap)
+	if err != nil {
+		return nil, err
+	}
+	return yamlReplaced, nil
 }
 
 func findAndReplace(m map[string]interface{}) error {
