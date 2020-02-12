@@ -1,4 +1,4 @@
-package yenv // yenv.
+package yenv // import "github.com/artbegolli/yenv"
 
 import (
 	"os"
