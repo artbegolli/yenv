@@ -31,10 +31,11 @@ func TestApplyEnvVariablesYAML(t *testing.T) {
 	assert.Equal(t, nil, err)
 
 	emptyObj := Object{}
-	if err := ApplyEnvVariablesYAML(yaml, emptyObj); err != nil {
+	if err := UnmarshallWithEnv(yaml, &emptyObj); err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println(emptyObj)
 }
 
 func TestApplyEnvVariablesMarshalled(t *testing.T) {
@@ -51,7 +52,7 @@ type Object struct {
 
 type Metadata struct {
 	Name string `json:"name"`
-	Labels map[string]string
+	Labels []string
 }
 
 type Spec struct {
@@ -61,7 +62,7 @@ type Spec struct {
 }
 
 type Template struct {
-	Metadata Metadata `json:"metadata"`
+	Metadata Metadata2 `json:"metadata"`
 }
 
 type ContainerSpec struct {
@@ -76,4 +77,8 @@ type Container struct {
 
 type Port struct {
 	ContainerPort string `json:"containerPort"`
+}
+
+type Metadata2 struct {
+	Labels map[string]string `json:"labels"`
 }

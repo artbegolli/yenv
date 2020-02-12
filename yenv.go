@@ -1,7 +1,6 @@
 package yenv // import "github.com/artbegolli/yenv"
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -9,16 +8,24 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-func ApplyEnvVariablesYAML(y []byte, o interface{}) error {
+func UnmarshallWithEnv(y []byte, o interface{}) error {
 
 	yamlMap := map[string]interface{}{}
 	if err := yaml.Unmarshal(y, &yamlMap); err != nil {
 		return err
 	}
-	fmt.Println(yamlMap)
-	findAndReplace(yamlMap)
-	fmt.Println(yamlMap)
+	if err := findAndReplace(yamlMap); err != nil {
+		return err
+	}
 
+	yamlReplaced, err := yaml.Marshal(yamlMap)
+	if err != nil {
+		return err
+	}
+
+	if err := yaml.Unmarshal(yamlReplaced, o); err != nil {
+		return err
+	}
 	return nil
 }
 
