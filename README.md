@@ -36,25 +36,25 @@ import (
 
 func main() {
 
-	/* Example Yaml:
-	    age: 30
-	    name: John
+    /* Example Yaml:
+        age: 30
+        name: John
         job: ${JOB_ENV}
-	*/
+    */
     
     // Set an environment variable
     os.Setenv("JOB_ENV", "software_stuff")
-
-	// Unmarshal the YAML back into a Person struct.
-	var p Person
-	err := yenv.UnmarshallWithEnv(y, &p)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return
-	}
-	fmt.Println(p)
-	/* Output:
-	{John 30 software_stuff}
-	*/
+    
+    // Unmarshal the YAML back into a Person struct.
+    var p Person
+    err := yenv.UnmarshallWithEnv(y, &p)
+    if err != nil {
+        fmt.Printf("err: %v\n", err)
+        return
+    }
+    fmt.Println(p)
+    /* Output:
+    {John 30 software_stuff}
+    */
 }
 ```
