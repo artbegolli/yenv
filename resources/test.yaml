@@ -4,20 +4,20 @@ metadata:
   name: nginx-deployment
   labels:
     - hello
-    - buh bye
+    - ${META_LABEL}
 spec:
   replicas: 3
   template:
     metadata:
       labels:
-        app: nginx
+        app: ${APP_LABEL}
     spec:
       containers:
-        - name: nginx
+        - name: nginxoxo
           image: nginx:1.7.9
           ports:
-            - containerPort: 80
-        - name: sidecar
+            - containerPort: ${PORT}
+        - name: ${CONT_NAME}
           image: log-sidecar:0.1.1
           ports:
             - containerPort: 80

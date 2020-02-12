@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/ghodss/yaml"
 )
@@ -23,26 +24,40 @@ func ApplyEnvVariablesYAML(y []byte, o interface{}) error {
 
 
 
-func findAndReplace(m map[string]interface{}) {
+func findAndReplace(m map[string]interface{}) error {
 
-	for _, v := range m {
+	for k, v := range m {
 		switch v := v.(type) {
 		case int, float64:
 		case string:
-			fmt.Printf("%v\n", v)
+			val, err := matchEnvVariable(v)
+			m[k] = val
+			if err != nil {
+				return err
+			}
+
 		case []interface{}:
-			for _, nv := range v {
+			for ak, nv := range v {
 				s, ok := nv.(string)
-				fmt.Printf("%v\n", s)
 				if !ok {
-					findAndReplace(nv.(map[string]interface{}))
+					if err := findAndReplace(nv.(map[string]interface{})); err != nil {
+						return err
+					}
+				} else {
+					val, err := matchEnvVariable(s)
+					v[ak] = val
+					if err != nil {
+						return err
+					}
 				}
 			}
 		case map[string]interface{}:
-			findAndReplace(v)
+			if err := findAndReplace(v); err != nil {
+				return err
+			}
 		}
 	}
-	return
+	return nil
 }
 
 func matchEnvVariable(s string) (string, error) {
@@ -53,7 +68,8 @@ func matchEnvVariable(s string) (string, error) {
 	}
 
 	if matched {
-		return os.Getenv(s), nil
+		trimmedVal := strings.Trim(s, "${}")
+		return os.Getenv(trimmedVal), nil
 	}
 
 	return s, nil

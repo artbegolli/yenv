@@ -3,6 +3,7 @@ package yenv
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,6 +17,16 @@ var testObject = Object{
 }
 
 func TestApplyEnvVariablesYAML(t *testing.T) {
+
+	err := os.Setenv("META_LABEL", "meta-label")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("APP_LABEL", "arts-app")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("PORT", "1231")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("CONT_NAME", "arts-container")
+	assert.Equal(t, nil, err)
+
 	yaml, err := ioutil.ReadFile("./resources/test.yaml")
 	assert.Equal(t, nil, err)
 
