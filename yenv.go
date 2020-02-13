@@ -43,11 +43,8 @@ func findAndReplace(m map[string]interface{}) error {
 		switch v := v.(type) {
 		case int, float64:
 		case string:
-			val, err := matchEnvVariable(v)
+			val := matchEnvVariable(v)
 			m[k] = val
-			if err != nil {
-				return err
-			}
 
 		case []interface{}:
 			for ak, nv := range v {
@@ -57,11 +54,8 @@ func findAndReplace(m map[string]interface{}) error {
 						return err
 					}
 				} else {
-					val, err := matchEnvVariable(s)
+					val := matchEnvVariable(s)
 					v[ak] = val
-					if err != nil {
-						return err
-					}
 				}
 			}
 		case map[string]interface{}:
@@ -73,17 +67,13 @@ func findAndReplace(m map[string]interface{}) error {
 	return nil
 }
 
-func matchEnvVariable(s string) (string, error) {
-	pattern := `^\${[a-zA-Z0-9_.-]*}$`
-	matched, err := regexp.MatchString(pattern, s)
-	if err != nil {
-		return "", err
-	}
+func matchEnvVariable(s string) string {
+	pattern := `\${[a-zA-Z0-9_.-]*}`
 
-	if matched {
-		trimmedVal := strings.Trim(s, "${}")
-		return os.Getenv(trimmedVal), nil
-	}
+	re := regexp.MustCompile(pattern)
+	return re.ReplaceAllStringFunc(s, func(match string) string {
+		trimmedVal := strings.Trim(match, "${}")
+		return os.Getenv(trimmedVal)
+	})
 
-	return s, nil
 }

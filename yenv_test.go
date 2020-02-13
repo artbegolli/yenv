@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +17,7 @@ var testObject = Object{
 	Spec:       Spec{},
 }
 
-func TestApplyEnvVariablesYAML(t *testing.T) {
+func TestUnmarshallWithEnv(t *testing.T) {
 
 	err := os.Setenv("META_LABEL", "meta-label")
 	assert.Equal(t, nil, err)
@@ -38,9 +39,46 @@ func TestApplyEnvVariablesYAML(t *testing.T) {
 	fmt.Println(emptyObj)
 }
 
-func TestApplyEnvVariablesMarshalled(t *testing.T) {
+func TestFindAndReplace(t *testing.T) {
 
+	err := os.Setenv("META_LABEL", "meta-label")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("APP_LABEL", "arts-app")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("PORT", "1231")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("CONT_NAME", "arts-container")
+	assert.Equal(t, nil, err)
 
+	yamlFile, err := ioutil.ReadFile("./resources/test.yaml")
+	assert.Equal(t, nil, err)
+
+	yamlMap := map[string]interface{}{}
+	err = yaml.Unmarshal(yamlFile, &yamlMap)
+	assert.Equal(t, nil, err)
+
+	fmt.Println("BEFORE:: ", yamlMap)
+	err = findAndReplace(yamlMap)
+	assert.Equal(t, nil, err)
+
+	fmt.Println("AFTER:: ", yamlMap)
+
+}
+
+func TestMatchEnvVariable(t *testing.T) {
+	err := os.Setenv("TEST_ENV1", "replaced-test-1")
+	assert.Equal(t, nil, err)
+	err = os.Setenv("TEST_ENV2", "replaced-test-2")
+	assert.Equal(t, nil, err)
+
+	actual1 := matchEnvVariable("${TEST_ENV1}")
+	assert.Equal(t, "replaced-test-1", actual1)
+
+	actual2 := matchEnvVariable("FROM ${TEST_ENV1} ${TEST_ENV2}")
+	assert.Equal(t, "FROM replaced-test-1 replaced-test-2", actual2)
+
+	actual3 := matchEnvVariable("this is not an env")
+	assert.Equal(t, "this is not an env", actual3)
 }
 
 type Object struct {
